@@ -28,8 +28,14 @@
     <div class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li><a href="#" ng-click="showAll()">Show All</a></li>
+        <li>
+          <form>
+            <input type="radio" ng-model="mode" value="offline"> Offline <br/>
+            <input type="radio" ng-model="mode" value="online"> Online <br/>
+        </li>
         <li>&nbsp;</li>
       </ul>
+
       <form class="navbar-form">
         <div class="form-group" style="display:inline;">
           <div class="input-group">
@@ -43,7 +49,11 @@
                 <li><a href="#" ng-click="setSearch('golden gate bridge')">golden gate bridge</a></li>
               </ul>
             </div>
-            <input type="text" ng-change="search()" ng-model="searchText" ng-model-options="{ debounce: 1000 }" class="form-control" placeholder="What are you searching for?">
+
+            <div id="bloodhound" >
+              <input id='online' type="text" ng-model="searchText" ng-change="search()" class="form-control typeahead" placeholder="What are you searching online?">
+            </div>
+
             <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span> </span>
           </div>
         </div>
@@ -56,11 +66,11 @@
   <div class="row">
   	<div class="col-xs-4 movie-list" id="left">
 
-      <h2>SF Movies Geolocated.</h2>
+      <h2>SF Movies Geolocated</h2>
 
       <!-- movie list -->
-      <span ng-if="searchText.length > 0" class="animate-if">
-        <div ng-repeat="movie in movies | filter:searchText">
+      <span ng-if="currentMovies.length > 0" class="animate-if">
+        <div ng-repeat="movie in currentMovies">
 
           <div class="panel panel-default">
             <div class="panel-heading">
@@ -110,7 +120,9 @@
 <!-- end template -->
 
 	<!-- script references -->
+    <script src="js/lodash.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="js/typeahead.bundle.min.js"></script>
 
     <script src="js/bootstrap.min.js"></script>
 
@@ -118,6 +130,7 @@
 		<script src="http://maps.googleapis.com/maps/api/js?sensor=false&extension=.js&output=embed"></script>
     <script src="data/Film_Locations_in_San_Francisco.js"></script>
     <script src="js/scripts.js"></script>
+    <script src="js/suggestions.js"></script>
     <script src="js/controllers.js"></script>
 	</body>
 </html>

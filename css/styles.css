@@ -68,3 +68,14 @@ body{
     width: 33%;
     overflow-y: scroll;
 }
+
+.twitter-typeahead {
+    width: 100%;
+    height: 34px;
+    vertical-align: middle;
+    color: black;
+}
+
+.tt-dropdown-menu {
+    background-color: white;
+}

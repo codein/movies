@@ -1,21 +1,50 @@
 var sfMovieApp = angular.module('movieApp', []);
 
-sfMovieApp.controller('MovieCtrl', function ($scope, $filter) {
+sfMovieApp.controller('MovieCtrl', function ($scope, $filter, $http) {
     $scope.movies = window.movies;
-    $scope.searchText = ''
-    $scope.markersArray = []
+    $scope.searchText = '';
+    $scope.searchTextOffline = '';
+    $scope.markersArray = [];
+    $scope.currentMovies = [];
+    $scope.mode = 'offline';
 
-    $scope.search = function() {
-        movies = $filter('filter')($scope.movies, $scope.searchText)
-        if(movies.length<30){
-            $scope.clearOverlays()
-            $scope.dropAllMarker(movies);
+
+    var searchOffline = function() {
+        console.log($scope.searchText);
+        movies = $filter('filter')($scope.movies, $scope.searchText);
+        $scope.currentMovies = movies.slice(0,30);
+        console.log($scope.currentMovies);
+        $scope.clearOverlays();
+        $scope.dropAllMarker($scope.currentMovies);
+    }
+
+    var searchOnline = function() {
+        console.log($scope.searchText);
+        var url = 'http://localhost:8888/movies/robin';
+        $http({method: 'GET', url: url}).
+          success(function(data, status, headers, config) {
+            console.log('data');
+            console.log(data);
+            $scope.currentMovies = data.movies;
+            $scope.clearOverlays();
+            $scope.dropAllMarker($scope.currentMovies);
+          })
+    }
+
+    var searchCallback = function() {
+        if($scope.mode == 'offline'){
+            searchOffline();
+        }
+        else{
+            searchOnline();
         }
     }
 
+    $scope.search = _.debounce(searchCallback, 1000);
+
     $scope.setSearch = function(searchText) {
         $scope.searchText = searchText;
-        $scope.search();
+        $scope.searchCallback();
     }
 
     $scope.showAll = function() {
@@ -23,6 +52,7 @@ sfMovieApp.controller('MovieCtrl', function ($scope, $filter) {
         $scope.clearOverlays();
         $scope.dropAllMarker(movies);
     }
+
 
 
     $scope.clearOverlays = function() {

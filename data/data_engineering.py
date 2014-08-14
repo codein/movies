@@ -1,6 +1,14 @@
+"""
+Script to enginner the raw csv data
+1. Retrieves latitude and longitude for each locations
+2. Groups all records by common_movie_attributes for ex. title.
+
+usage
+python data_engineering.py
+"""
+
 import csv
 import json
-
 from itertools import groupby
 from pprint import pprint
 
@@ -12,7 +20,26 @@ FILE_NAME = 'Film_Locations_in_San_Francisco test.csv'
 FILE_NAME = 'Film_Locations_in_San_Francisco.csv'
 
 def get_title(record):
+    """given a record returns it's title"""
     return record.get('title', None)
+
+"""
+1. Reads records from .csv
+2. Retrieves latitude and longitude for each locations
+3. Groups all records by common_movie_attributes for ex. title.
+4. Finally writes the data into .js file
+for ex a final record for a movie is as follows
+{
+    "title":"Midnight Lace",
+    "fun_facts":["In 1945 the Fairmont hosted the United Nations Conference on... ],
+    "writer":"Ivan Geoff",
+    "locations":[{"latitude":37.7924,"longitude":-122.4102,"address":"Fairmont Hotel (950 Mason Street, Nob Hill)"}],
+    "director":"David Miller",
+    "production_company":"Arwin Productions",
+    "actors":["","Rex Harrison","Doris Day"],
+    "distributor":"Universal Pictures"
+}
+"""
 
 with open(FILE_NAME, 'rb') as csvfile:
     spamreader = csv.reader(csvfile, delimiter=',')
@@ -34,8 +61,6 @@ with open(FILE_NAME, 'rb') as csvfile:
             except GeocoderError, e:
                 print 'no locations found'
                 latitude, longitude = (37.758895, -122.41472420000002)
-
-
 
             record['latitude'] = latitude
             record['longitude'] = longitude
@@ -87,10 +112,6 @@ with open(FILE_NAME, 'rb') as csvfile:
         movie['fun_facts'] = list(movie['fun_facts'])
         movie['actors'] = list(movie['actors'])
         movies.append(movie)
-
-
-
-
 
 
     output_file = open('Film_Locations_in_San_Francisco.js', 'w+')
