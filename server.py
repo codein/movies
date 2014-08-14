@@ -44,10 +44,7 @@ class MovieRequestHandler(JsonRequestHandler):
         return movies for a given query.
         yet to be implemented
         """
-        print query
-        # data = self.store.get_slice(key, start, stop)
         json_data = '''{"title":"Midnight Lace","fun_facts":["In 1945 the Fairmont hosted the United Nations Conference on International Organization as delegates arrived to draft a charter for the organization. The U.S. Secretary of State, Edward Stettinus drafted the charter in the hotel's Garden Room."],"writer":"Ivan Geoff","locations":[{"latitude":37.7924,"longitude":-122.4102,"address":"Fairmont Hotel (950 Mason Street, Nob Hill)"}],"director":"David Miller","production_company":"Arwin Productions","actors":["","Rex Harrison","Doris Day"],"distributor":"Universal Pictures"}'''
-        print json_data
         data = json.loads(json_data)
         self.json_write([data], 'movies')
 
@@ -57,7 +54,6 @@ class SuggestionRequestHandler(JsonRequestHandler):
         """
         return top 5 suggestions for any given query.
         """
-        print self.suggestions
         query = str(query)
 
         suggestions_distances = []
