@@ -1,9 +1,11 @@
 ## SF Movies
 http://codein.github.io/movies/
+checkout a demo video at https://github.com/codein/movies/blob/master/output.mkv
 
 ### Overview
 
 This impementation is a Full-stack implementation: include both front-end and back-end.
+
 
 #### Data-Enginnering
 * This step is performed using data/data_engineering.py
