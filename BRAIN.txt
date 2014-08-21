@@ -1,8 +1,13 @@
 # get todo working
 # get to work with coffeescript
-* interate bootstrap
-* integrate google maps
+# interate bootstrap
+# integrate google maps
 * render mock movies data
 
+
+* cleanup js/google.maps.index.js
+* clean up requirements.txt
+** add eleasticsearch-py
+*
 
 https://gist.github.com/wingdspur/2026107
