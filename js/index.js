@@ -8,7 +8,37 @@
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   jQuery(function() {
-    var Item, ItemView, List, ListView, list_view;
+    var GoogleMaps, Item, ItemView, List, ListView, _initialize;
+    GoogleMaps = (function() {
+      function GoogleMaps() {}
+
+      GoogleMaps.dropMarker = function(latitude, longitude, animation) {
+        var marker, position;
+        if (animation == null) {
+          animation = 'DROP';
+        }
+        switch (animation) {
+          case 'BOUNCE':
+            animation = google.maps.Animation.BOUNCE;
+            break;
+          case 'DROP':
+            animation = google.maps.Animation.DROP;
+            break;
+          default:
+            animation = google.maps.Animation.DROP;
+        }
+        position = new google.maps.LatLng(latitude, longitude);
+        return marker = new google.maps.Marker({
+          position: position,
+          map: map,
+          draggable: false,
+          animation: animation
+        });
+      };
+
+      return GoogleMaps;
+
+    })();
     Item = (function(_super) {
       __extends(Item, _super);
 
@@ -45,8 +75,6 @@
         return ItemView.__super__.constructor.apply(this, arguments);
       }
 
-      ItemView.prototype.tagName = 'li';
-
       ItemView.prototype.initialize = function() {
         _.bindAll(this);
         this.model.bind('change', this.render);
@@ -54,7 +82,14 @@
       };
 
       ItemView.prototype.render = function() {
-        $(this.el).html("<span>" + (this.model.get('part1')) + " " + (this.model.get('part2')) + "!</span>\n<span class=\"swap\">swap</span>\n<span class=\"delete\">delete</span>");
+        var location, _i, _len, _ref;
+        $(this.el).html("\n<div class=\"panel panel-default\">\n  <div class=\"panel-heading\">\n    <a href=\"\">" + (this.model.get('title')) + "</a>\n    <span class=\"badge pull-right\">" + (this.model.get('release_year')) + "</span>\n  </div>\n</div>\n<p><i class=\"fa fa-user\"></i> " + (this.model.get('writer')) + "<i class=\"fa fa-pencil\"></i></p>\n<p><i class=\"fa fa-smile-o\"></i> " + (this.model.get('fun_facts').join('. ')) + "</p>\n<p><i class=\"fa fa-video-camera\"></i> " + (this.model.get('production_company')) + "</p>\n<p><i class=\"fa fa-users\"></i> " + (this.model.get('actors').join(', ')) + "</p>");
+        _ref = this.model.get('locations');
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          location = _ref[_i];
+          $(this.el).append("<p ng-click=\"dropMarker(location.latitude, location.longitude, 'bounce')\">\n  <i class=\"location fa fa-location-arrow\"></i>\n  <span class=\"swap\">\n    <a href=\"#\" longitude=" + location.longitude + " latitude=" + location.latitude + ">\n      " + location.address + "\n    </a>\n  </span>\n</p>");
+        }
+        $(this.el).append("<hr>");
         return this;
       };
 
@@ -62,11 +97,11 @@
         return $(this.el).remove();
       };
 
-      ItemView.prototype.swap = function() {
-        return this.model.set({
-          part1: this.model.get('part2'),
-          part2: this.model.get('part1')
-        });
+      ItemView.prototype.onClickLocation = function(e) {
+        var latitude, longitude;
+        latitude = e.target.getAttribute('latitude');
+        longitude = e.target.getAttribute('longitude');
+        return GoogleMaps.dropMarker(latitude, longitude, 'BOUNCE');
       };
 
       ItemView.prototype.remove = function() {
@@ -74,8 +109,8 @@
       };
 
       ItemView.prototype.events = {
-        'click .swap': 'swap',
-        'click .delete': 'remove'
+        'click .writer': 'onClickLocation',
+        'click .swap': 'onClickLocation'
       };
 
       return ItemView;
@@ -85,10 +120,11 @@
       __extends(ListView, _super);
 
       function ListView() {
+        this.appendItem = __bind(this.appendItem, this);
         return ListView.__super__.constructor.apply(this, arguments);
       }
 
-      ListView.prototype.el = $('body');
+      ListView.prototype.el = $('span#results');
 
       ListView.prototype.initialize = function() {
         _.bindAll(this);
@@ -99,18 +135,19 @@
       };
 
       ListView.prototype.render = function() {
-        $(this.el).append('<button>Add Item List</button>');
-        return $(this.el).append('<ul></ul>');
+        return $(this.el).append('<ul id="movies"></ul>');
       };
 
-      ListView.prototype.addItem = function() {
-        var item;
-        this.counter++;
-        item = new Item;
-        item.set({
-          part2: "" + (item.get('part2')) + " " + this.counter
-        });
-        return this.collection.add(item);
+      ListView.prototype.createResult = function(resultData) {
+        var item, location, _i, _len, _ref;
+        item = new Item(resultData);
+        this.collection.add(item);
+        _ref = resultData.locations;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          location = _ref[_i];
+          GoogleMaps.dropMarker(location.latitude.toString(), location.longitude.toString());
+        }
+        return item;
       };
 
       ListView.prototype.appendItem = function(item) {
@@ -118,11 +155,7 @@
         item_view = new ItemView({
           model: item
         });
-        return $('ul').append(item_view.render().el);
-      };
-
-      ListView.prototype.events = {
-        'click button': 'addItem'
+        return $('span#results').append(item_view.render().el);
       };
 
       return ListView;
@@ -131,7 +164,18 @@
     Backbone.sync = function(method, model, success, error) {
       return success();
     };
-    return list_view = new ListView;
+    _initialize = function() {
+      var list_view, result, resultData, _i, _len, _ref, _results;
+      list_view = new ListView;
+      _ref = movies.slice(0, 6);
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        resultData = _ref[_i];
+        _results.push(result = list_view.createResult(resultData));
+      }
+      return _results;
+    };
+    return google.maps.event.addDomListener(window, 'load', _initialize);
   });
 
 }).call(this);

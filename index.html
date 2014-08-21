@@ -13,6 +13,7 @@
   <link href="css/styles.css" rel="stylesheet">
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script src="http://maps.googleapis.com/maps/api/js?sensor=false&extension=.js&output=embed"></script>
   <script src="http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
   <script src="http://ajax.cdnjs.com/ajax/libs/underscore.js/1.1.6/underscore-min.js"></script>
   <script src="http://ajax.cdnjs.com/ajax/libs/backbone.js/0.3.3/backbone-min.js"></script>
@@ -20,7 +21,6 @@
 
   <script src="js/bootstrap.min.js"></script>
 
-  <script src="http://maps.googleapis.com/maps/api/js?sensor=false&extension=.js&output=embed"></script>
   <script src="js/index.js"></script>
   <script src="data/Film_Locations_in_San_Francisco.js"></script>
   <script src="js/google.maps.index.js"></script>
@@ -75,7 +75,7 @@
         <h2>SF Movies Geolocated</h2>
 
         <!-- movie list -->
-        <span ng-if="currentMovies.length > 0" class="animate-if">
+        <span id="results">
           <div ng-repeat="movie in currentMovies">
 
             <div class="panel panel-default">

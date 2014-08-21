@@ -3,6 +3,8 @@
 # interate bootstrap
 # integrate google maps
 * render mock movies data
+* rename model and view to results
+* add if else for no results
 
 
 * cleanup js/google.maps.index.js

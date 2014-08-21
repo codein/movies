@@ -2,12 +2,32 @@
 ###
 jQuery ->
 
+  class GoogleMaps
+
+    @dropMarker: (latitude, longitude, animation='DROP') ->
+      switch animation
+        when 'BOUNCE'
+          animation = google.maps.Animation.BOUNCE
+
+        when 'DROP'
+          animation = google.maps.Animation.DROP
+
+        else
+          animation = google.maps.Animation.DROP
+
+      position = new google.maps.LatLng(latitude, longitude)
+      marker = new google.maps.Marker
+        position: position
+        map: map
+        draggable: false
+        animation: animation
+
+
   class Item extends Backbone.Model
 
     defaults:
       part1: 'Hello'
       part2: 'Backbone'
-
 
   class List extends Backbone.Collection
 
@@ -16,7 +36,7 @@ jQuery ->
 
   class ItemView extends Backbone.View
 
-    tagName: 'li'
+    # tagName: 'div'
 
     # `initialize()`
     # binds [`change`](http://documentcloud.github.com/backbone/#Model-change)
@@ -32,9 +52,33 @@ jQuery ->
     # an item.
     render: =>
       $(@el).html """
-        <span>#{@model.get 'part1'} #{@model.get 'part2'}!</span>
-        <span class="swap">swap</span>
-        <span class="delete">delete</span>
+
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <a href="">#{@model.get 'title'}</a>
+            <span class="badge pull-right">#{@model.get 'release_year'}</span>
+          </div>
+        </div>
+        <p><i class="fa fa-user"></i> #{@model.get 'writer'}<i class="fa fa-pencil"></i></p>
+        <p><i class="fa fa-smile-o"></i> #{@model.get('fun_facts').join('. ')}</p>
+        <p><i class="fa fa-video-camera"></i> #{@model.get 'production_company'}</p>
+        <p><i class="fa fa-users"></i> #{@model.get('actors').join(', ')}</p>
+      """
+
+      for location in @model.get('locations')
+        $(@el).append """
+            <p ng-click="dropMarker(location.latitude, location.longitude, 'bounce')">
+              <i class="fa fa-location-arrow"></i>
+              <span class="location">
+                <a href="#" longitude=#{location.longitude} latitude=#{location.latitude}>
+                  #{location.address}
+                </a>
+              </span>
+            </p>
+        """
+
+      $(@el).append """
+        <hr>
       """
       @
 
@@ -43,13 +87,10 @@ jQuery ->
     unrender: =>
       $(@el).remove()
 
-    # `swap()` interchanges an `Item`'s attributes. The [`set()` model
-    # function](http://documentcloud.github.com/backbone/#Model-set) triggers
-    # the `change` event.
-    swap: ->
-      @model.set
-        part1: @model.get 'part2'
-        part2: @model.get 'part1'
+    onClickLocation: (e) ->
+      latitude = e.target.getAttribute('latitude')
+      longitude = e.target.getAttribute('longitude')
+      GoogleMaps.dropMarker(latitude, longitude, 'BOUNCE')
 
 
     # `remove()` calls the model's
@@ -61,15 +102,14 @@ jQuery ->
 
     # `ItemView`s now respond to two click actions for each `Item`.
     events:
-      'click .swap': 'swap'
-      'click .delete': 'remove'
+      'click .location': 'onClickLocation'
 
 
   # We no longer need to modify the `ListView` because `swap` and `delete` are
   # called on each `Item`.
   class ListView extends Backbone.View
 
-    el: $ 'body'
+    el: $ 'span#results'
 
     initialize: ->
       _.bindAll @
@@ -81,20 +121,21 @@ jQuery ->
       @render()
 
     render: ->
-      $(@el).append '<button>Add Item List</button>'
-      $(@el).append '<ul></ul>'
+      $(@el).append '<ul id="movies"></ul>'
 
-    addItem: ->
-      @counter++
-      item = new Item
-      item.set part2: "#{item.get 'part2'} #{@counter}"
+    createResult: (resultData) ->
+      item = new Item(resultData)
       @collection.add item
+      for location in resultData.locations
+        GoogleMaps.dropMarker(location.latitude.toString(), location.longitude.toString())
 
-    appendItem: (item) ->
+      item
+
+    appendItem: (item) =>
       item_view = new ItemView model: item
-      $('ul').append item_view.render().el
+      $('span#results').append item_view.render().el
 
-    events: 'click button': 'addItem'
+    # events: 'click button': 'addItem'
 
 
   # We'll override
@@ -106,4 +147,10 @@ jQuery ->
     success()
 
 
-  list_view = new ListView
+
+  _initialize = ->
+    list_view = new ListView
+    for resultData in movies[0..5]
+      result = list_view.createResult(resultData)
+
+  google.maps.event.addDomListener(window, 'load', _initialize)
