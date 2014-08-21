@@ -1,17 +1,129 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
   <meta charset="utf-8">
-  <title>SF movies</title>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+  <title>San Francisco Movies</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+  <!--[if lt IE 9]>
+    <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="css/styles.css" rel="stylesheet">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
   <script src="http://ajax.cdnjs.com/ajax/libs/json2/20110223/json2.js"></script>
   <script src="http://ajax.cdnjs.com/ajax/libs/underscore.js/1.1.6/underscore-min.js"></script>
   <script src="http://ajax.cdnjs.com/ajax/libs/backbone.js/0.3.3/backbone-min.js"></script>
   <script src="js/index.js"></script>
+
+
+  <script src="js/bootstrap.min.js"></script>
+
+  <script src="http://maps.googleapis.com/maps/api/js?sensor=false&extension=.js&output=embed"></script>
+  <script src="data/Film_Locations_in_San_Francisco.js"></script>
+
 </head>
 <body>
-  <header>
-    <h1>SF movies</h1>
-  </header>
+
+  <!-- begin template -->
+  <div class="navbar navbar-custom navbar-fixed-top">
+   <div class="navbar-header"><a class="navbar-brand" href="#">SF Movies</a>
+        <a class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="#">Show All</a></li>
+          <li>&nbsp;</li>
+        </ul>
+
+        <form class="navbar-form">
+          <div class="form-group" style="display:inline;">
+            <div class="input-group">
+              <div class="input-group-btn">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-chevron-down"></span></button>
+                <ul class="dropdown-menu">
+                  <li><a href="#">Robin</a></li>
+                  <li><a href="#">Commandments</a></li>
+                  <li><a href="#">Alfred</a></li>
+                  <li><a href="#">Chaplin</a></li>
+                  <li><a href="#">golden gate bridge</a></li>
+                </ul>
+              </div>
+
+              <input id='online' class="form-control" type="text" placeholder="What are you searching online?">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-search"></span>
+              </span>
+            </div>
+          </div>
+        </form>
+      </div>
+  </div>
+
+  <div id="map-canvas"></div>
+  <div class="container-fluid" id="main">
+    <div class="row">
+      <div class="col-xs-4 movie-list" id="left">
+
+        <h2>SF Movies Geolocated</h2>
+
+        <!-- movie list -->
+        <span ng-if="currentMovies.length > 0" class="animate-if">
+          <div ng-repeat="movie in currentMovies">
+
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <a href="">{{movie.title}}</a>
+                <span class="badge pull-right">{{movie.release_year}}</span>
+              </div>
+            </div>
+            <p><i class="fa fa-user"></i> {{movie.writer}} <i class="fa fa-pencil"></i></p>
+            <p><i class="fa fa-smile-o"></i> {{movie.fun_facts.join('. ')}}</p>
+            <p><i class="fa fa-video-camera"></i> {{movie.production_company}}</p>
+
+            <p><i class="fa fa-users"></i> {{movie.actors.join(', ')}}</p>
+
+            <div ng-repeat="location in movie.locations">
+              <p ng-click="dropMarker(location.latitude, location.longitude, 'bounce')">
+                <i class="fa fa-location-arrow"></i>
+                <a href="">{{location.address}}</a>
+              </p>
+            </div>
+            <hr>
+          </div>
+        </span>
+
+        <span ng-if="searchText.length === 0" class="animate-if">
+           <div class="panel panel-default">
+              <div class="panel-heading">
+                <a href="">No Results</a>
+                <span class="badge pull-right">0</span>
+              </div>
+            </div>
+            <p>Type into the search box</p>
+        <span>
+
+        <!-- /movie list -->
+
+        <p>
+        The data is available on <a href="http://www.datasf.org/">DataSF</a>: <a href="https://data.sfgov.org/Arts-Culture-and-Recreation-/Film-Locations-in-San-Francisco/yitu-d5am">Film
+        Locations</a>.
+        </p>
+
+      </div>
+      <div class="col-xs-8"><!--map-canvas will be postioned here--></div>
+
+    </div>
+  </div>
+  </div>
+  <!-- end template -->
+
+
 </body>
 </html>
