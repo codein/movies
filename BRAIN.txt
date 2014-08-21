@@ -1,0 +1,8 @@
+# get todo working
+# get to work with coffeescript
+* interate bootstrap
+* integrate google maps
+* render mock movies data
+
+
+https://gist.github.com/wingdspur/2026107

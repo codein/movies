@@ -1,6 +1,7 @@
 ## SF Movies
-http://codein.github.io/movies/
-checkout a demo video at https://github.com/codein/movies/blob/master/output.mkv
+Offline version hosted at http://codein.github.io/movies/
+
+Checkout a demo video at https://github.com/codein/movies/blob/master/output.mkv
 
 ### Overview
 
