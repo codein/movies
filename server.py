@@ -7,6 +7,7 @@ import json
 import logging
 from operator import itemgetter
 
+from elasticsearch import Elasticsearch
 import Levenshtein
 import tornado.ioloop
 import tornado.web
@@ -15,7 +16,7 @@ LOG_FORMAT = '%(asctime)s - %(filename)s:%(lineno)s - %(levelname)s - %(message)
 logging.basicConfig(format=LOG_FORMAT, level=logging.INFO)
 
 
-class JsonRequestHandler(tornado.web.RequestHandler):
+class BaseRequestHandler(tornado.web.RequestHandler):
     """Base Handler with capabiblity to write json data back"""
 
     @property
@@ -26,6 +27,15 @@ class JsonRequestHandler(tornado.web.RequestHandler):
 
         return self._suggestions
 
+
+    @property
+    def es(self):
+        """elastic search property from the main application object is referenced"""
+        if not hasattr(self, '_es'):
+            self._es = self.application.es
+
+        return self._es
+
     def json_write(self, data, field='data'):
         """Given a python dict wraps it in a data attribute and returned."""
         self.set_header(name="Content-Type", value="application/json")
@@ -33,7 +43,7 @@ class JsonRequestHandler(tornado.web.RequestHandler):
         self.finish()
 
 
-class MovieRequestHandler(JsonRequestHandler):
+class MovieRequestHandler(BaseRequestHandler):
     """
     '/key/<key>/start/<start>/stop/<stop>' endpoint is served
     Only GET is exposed.
@@ -44,11 +54,21 @@ class MovieRequestHandler(JsonRequestHandler):
         return movies for a given query.
         yet to be implemented
         """
-        json_data = '''{"title":"Midnight Lace","fun_facts":["In 1945 the Fairmont hosted the United Nations Conference on International Organization as delegates arrived to draft a charter for the organization. The U.S. Secretary of State, Edward Stettinus drafted the charter in the hotel's Garden Room."],"writer":"Ivan Geoff","locations":[{"latitude":37.7924,"longitude":-122.4102,"address":"Fairmont Hotel (950 Mason Street, Nob Hill)"}],"director":"David Miller","production_company":"Arwin Productions","actors":["","Rex Harrison","Doris Day"],"distributor":"Universal Pictures"}'''
-        data = json.loads(json_data)
-        self.json_write([data], 'movies')
+        query_body = {
+            "query": {
+                "fuzzy_like_this": {
+                    "fields" : ["title"],
+                    'like_text': query
+                }
+            }
+        }
 
-class SuggestionRequestHandler(JsonRequestHandler):
+        res = self.es.search(index="test-movie-index", body=query_body)
+        logging.info("Got %d Hits for %s", res['hits']['total'], query)
+        search_results = [hit["_source"] for hit in res['hits']['hits']]
+        self.json_write(search_results, 'movies')
+
+class SuggestionRequestHandler(BaseRequestHandler):
 
     def get(self, query):
         """
@@ -93,6 +113,15 @@ class App(tornado.web.Application):
             self._suggestions = suggestions
 
         return self._suggestions
+
+    @property
+    def es(self):
+        """intantiates a connection to elastic search server"""
+        if not hasattr(self, '_es'):
+            self._es = Elasticsearch()
+
+        return self._es
+
 
 if __name__ == "__main__":
     application = App()

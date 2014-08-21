@@ -2,8 +2,8 @@
 # get to work with coffeescript
 # interate bootstrap
 # integrate google maps
-* render mock movies data
-* rename model and view to results
+# render mock movies data
+# rename model and view to results
 * add if else for no results
 
 
@@ -11,5 +11,18 @@
 * clean up requirements.txt
 ** add eleasticsearch-py
 *
+
+* implement search
+** dump all record to elastic search
+** impl the search endpoint
+** unitest with some representative queries
+** use couroutines
+
+* implement suggestions
+** load suggestions for movie titles
+
+* make the urls more friendly
+* query by all the fields
+
 
 https://gist.github.com/wingdspur/2026107

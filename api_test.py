@@ -28,6 +28,14 @@ class TestSequenceFunctions(unittest.TestCase):
         data = self.get('suggest/commandments')
         self.assertTrue('commandments' in data['suggestions'][0])
 
+    def test2_suggestions(self):
+        """
+        Ensure a user query receives appropriate suggestions
+        """
+        data = self.get('movies/commandments')
+        print data
+        self.assertTrue('The Ten Commandments' in data['movies'][0]['title'])
+
     def _loads_response(self, response):
         """given a response object json.loads the data and return."""
         if response.status_code == httplib.OK:
