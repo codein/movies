@@ -8,7 +8,7 @@
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   jQuery(function() {
-    var GoogleMaps, ResultModel, ResultView, Results, ResultsView, _initialize;
+    var GoogleMaps, ResultModel, ResultView, Results, ResultsView, SearchController, _initialize;
     GoogleMaps = (function() {
       function GoogleMaps() {}
 
@@ -159,11 +159,47 @@
       return ResultsView;
 
     })(Backbone.View);
+    SearchController = (function(_super) {
+      __extends(SearchController, _super);
+
+      function SearchController() {
+        this.search = __bind(this.search, this);
+        return SearchController.__super__.constructor.apply(this, arguments);
+      }
+
+      SearchController.prototype.el = $('body');
+
+      SearchController.prototype.debounceSearch = _.debounce(SearchController.search, 1000);
+
+      SearchController.prototype.search = function() {
+        var searchText;
+        searchText = $('#search-text').val();
+        console.log('searchText', searchText);
+        return $.ajax({
+          url: "/movies/commandments",
+          dataType: "json",
+          error: function(jqXHR, textStatus, errorThrown) {
+            return console.log(jqXHR, textStatus, errorThrown);
+          },
+          success: function(data, textStatus, jqXHR) {
+            return console.log(data, textStatus, jqXHR);
+          }
+        });
+      };
+
+      SearchController.prototype.events = {
+        'keyup :input#search-text': 'search'
+      };
+
+      return SearchController;
+
+    })(Backbone.View);
     Backbone.sync = function(method, model, success, error) {
       return success();
     };
     _initialize = function() {
-      var result, resultData, resultsView, _i, _len, _ref, _results;
+      var result, resultData, resultsView, searchController, _i, _len, _ref, _results;
+      searchController = new SearchController();
       resultsView = new ResultsView;
       _ref = movies.slice(0, 6);
       _results = [];

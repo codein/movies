@@ -136,6 +136,33 @@ jQuery ->
       $('span#results').append item_view.render().el
 
 
+  class SearchController extends Backbone.View
+    el: $ 'body'
+
+    # constructor: ->
+
+    # debounceSearch: ->
+    #   console.log 'here'
+
+
+    debounceSearch: _.debounce(@search, 1000)
+
+    search: =>
+      searchText = $('#search-text').val()
+      console.log 'searchText', searchText
+      $.ajax
+        url: "/movies/commandments"
+        dataType: "json"
+        error: (jqXHR, textStatus, errorThrown) ->
+          console.log jqXHR, textStatus, errorThrown
+          # $('body').append "AJAX Error: #{textStatus}"
+        success: (data, textStatus, jqXHR) ->
+          console.log data, textStatus, jqXHR
+          # $('body').append "Successful AJAX call: #{data}"
+
+    events:
+      'keyup :input#search-text': 'search'
+
   # We'll override
   # [`Backbone.sync`](http://documentcloud.github.com/backbone/#Sync)
   Backbone.sync = (method, model, success, error) ->
@@ -147,6 +174,7 @@ jQuery ->
 
 
   _initialize = ->
+    searchController = new SearchController()
     resultsView = new ResultsView
     for resultData in movies[0..5]
       result = resultsView.createResult(resultData)
