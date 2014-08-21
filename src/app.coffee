@@ -23,18 +23,18 @@ jQuery ->
         animation: animation
 
 
-  class Item extends Backbone.Model
+  class ResultModel extends Backbone.Model
 
     defaults:
       part1: 'Hello'
       part2: 'Backbone'
 
-  class List extends Backbone.Collection
+  class Results extends Backbone.Collection
 
-    model: Item
+    model: ResultModel
 
 
-  class ItemView extends Backbone.View
+  class ResultView extends Backbone.View
 
     # tagName: 'div'
 
@@ -100,21 +100,21 @@ jQuery ->
     # override this in `Backbone.sync` below.
     remove: -> @model.destroy()
 
-    # `ItemView`s now respond to two click actions for each `Item`.
+    # `ResultView`s now respond to two click actions for each `Item`.
     events:
       'click .location': 'onClickLocation'
 
 
-  # We no longer need to modify the `ListView` because `swap` and `delete` are
+  # We no longer need to modify the `ResultsView` because `swap` and `delete` are
   # called on each `Item`.
-  class ListView extends Backbone.View
+  class ResultsView extends Backbone.View
 
     el: $ 'span#results'
 
     initialize: ->
       _.bindAll @
 
-      @collection = new List
+      @collection = new Results
       @collection.bind 'add', @appendItem
 
       @counter = 0
@@ -124,18 +124,16 @@ jQuery ->
       $(@el).append '<ul id="movies"></ul>'
 
     createResult: (resultData) ->
-      item = new Item(resultData)
-      @collection.add item
+      resultModel = new ResultModel(resultData)
+      @collection.add resultModel
       for location in resultData.locations
         GoogleMaps.dropMarker(location.latitude.toString(), location.longitude.toString())
 
-      item
+      resultModel
 
-    appendItem: (item) =>
-      item_view = new ItemView model: item
+    appendItem: (resultModel) ->
+      item_view = new ResultView model: resultModel
       $('span#results').append item_view.render().el
-
-    # events: 'click button': 'addItem'
 
 
   # We'll override
@@ -149,8 +147,8 @@ jQuery ->
 
 
   _initialize = ->
-    list_view = new ListView
+    resultsView = new ResultsView
     for resultData in movies[0..5]
-      result = list_view.createResult(resultData)
+      result = resultsView.createResult(resultData)
 
   google.maps.event.addDomListener(window, 'load', _initialize)
