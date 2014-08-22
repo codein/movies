@@ -14,17 +14,19 @@
 *
 
 # implement search
-** dump all record to elastic search
-** impl the search endpoint
-** unitest with some representative queries
-** use couroutines
+## dump all record to elastic search
+## impl the search endpoint
+## use couroutines
 
 * implement suggestions
 ** load suggestions for movie titles
 
 * make the urls more friendly
 * make url encode for spaces
+** add unittest for "ten Commandments"
+** unitest with some representative queries
 * query by all the fields
+* reduce the debounce to 500ms
 
 
 https://gist.github.com/wingdspur/2026107

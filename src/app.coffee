@@ -175,9 +175,16 @@ jQuery ->
       @_debounceSearch ?= _.debounce(@search, 1000)
       @_debounceSearch()
 
+    addSuggestions: (suggestions)->
+      $('#suggestions').html()
+
+      for suggestion in suggestions
+        $('#suggestions').append "<option value=\"#{suggestion}\">"
+
     search: =>
       searchText = $('#search-text').val()
       console.log 'searchText', searchText
+
       $.ajax
         url: "/movies/#{searchText}"
         dataType: "json"
@@ -188,9 +195,12 @@ jQuery ->
           console.log data, textStatus, jqXHR
           @resultsView.reset()
           @resultsView.removeNoReuslt() if data.movies.length > 0
-
+          suggestions = []
           for resultData in data.movies[0..5]
+            suggestions.push(resultData.title)
             @resultsView.createResult(resultData)
+
+          @addSuggestions(suggestions)
 
     events:
       'keyup :input#search-text': 'debounceSearch'

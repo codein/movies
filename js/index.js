@@ -211,6 +211,17 @@
         return this._debounceSearch();
       };
 
+      SearchController.prototype.addSuggestions = function(suggestions) {
+        var suggestion, _i, _len, _results;
+        $('#suggestions').html();
+        _results = [];
+        for (_i = 0, _len = suggestions.length; _i < _len; _i++) {
+          suggestion = suggestions[_i];
+          _results.push($('#suggestions').append("<option value=\"" + suggestion + "\">"));
+        }
+        return _results;
+      };
+
       SearchController.prototype.search = function() {
         var searchText;
         searchText = $('#search-text').val();
@@ -223,19 +234,20 @@
           },
           success: (function(_this) {
             return function(data, textStatus, jqXHR) {
-              var resultData, _i, _len, _ref, _results;
+              var resultData, suggestions, _i, _len, _ref;
               console.log(data, textStatus, jqXHR);
               _this.resultsView.reset();
               if (data.movies.length > 0) {
                 _this.resultsView.removeNoReuslt();
               }
+              suggestions = [];
               _ref = data.movies.slice(0, 6);
-              _results = [];
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 resultData = _ref[_i];
-                _results.push(_this.resultsView.createResult(resultData));
+                suggestions.push(resultData.title);
+                _this.resultsView.createResult(resultData);
               }
-              return _results;
+              return _this.addSuggestions(suggestions);
             };
           })(this)
         });

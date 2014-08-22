@@ -11,6 +11,7 @@ from elasticsearch import Elasticsearch
 import Levenshtein
 import tornado.ioloop
 import tornado.web
+import tornado.gen
 
 LOG_FORMAT = '%(asctime)s - %(filename)s:%(lineno)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=LOG_FORMAT, level=logging.INFO)
@@ -42,6 +43,22 @@ class BaseRequestHandler(tornado.web.RequestHandler):
         self.write(json.dumps({field: data}))
         self.finish()
 
+@tornado.gen.coroutine
+def search(es, query):
+    query_body = {
+        "query": {
+            "fuzzy_like_this": {
+                "fields" : ["title"],
+                'like_text': query
+            }
+        }
+    }
+
+    res = es.search(index="movie-index", body=query_body)
+    logging.info("Got %d Hits for %s", res['hits']['total'], query)
+    search_results = [hit["_source"] for hit in res['hits']['hits']]
+
+    raise tornado.gen.Return(search_results)
 
 class MovieRequestHandler(BaseRequestHandler):
     """
@@ -49,23 +66,14 @@ class MovieRequestHandler(BaseRequestHandler):
     Only GET is exposed.
     """
 
+    @tornado.web.asynchronous
+    @tornado.gen.coroutine
     def get(self, query):
         """
         return movies for a given query.
         yet to be implemented
         """
-        query_body = {
-            "query": {
-                "fuzzy_like_this": {
-                    "fields" : ["title"],
-                    'like_text': query
-                }
-            }
-        }
-
-        res = self.es.search(index="movie-index", body=query_body)
-        logging.info("Got %d Hits for %s", res['hits']['total'], query)
-        search_results = [hit["_source"] for hit in res['hits']['hits']]
+        search_results = yield search(self.es, query)
         self.json_write(search_results, 'movies')
 
 class SuggestionRequestHandler(BaseRequestHandler):

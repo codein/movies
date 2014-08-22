@@ -47,11 +47,9 @@
           <div class="form-group" style="display:inline;">
             <div class="input-group">
               <div class="input-group-btn">
-                <span class="search-btn">
-                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                    <span class="glyphicon glyphicon-chevron-down"></span>
-                  </button>
-                </span>
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                  <span class="glyphicon glyphicon-chevron-down"></span>
+                </button>
                 <ul class="dropdown-menu">
                   <li><a href="#">Robin</a></li>
                   <li><a href="#">Commandments</a></li>
@@ -61,7 +59,8 @@
                 </ul>
               </div>
 
-              <input id='search-text' class="form-control" type="text" placeholder="What are you searching online?">
+              <input id='search-text' class="form-control" type="text" placeholder="What are you searching online?" list="suggestions">
+              <datalist id="suggestions"></datalist>
               <span class="input-group-addon">
                 <span id="search-btn" class="glyphicon glyphicon-search"></span>
               </span>
