@@ -160,9 +160,7 @@ jQuery ->
       for locationMarker in @locationMarkers
         locationMarker.setMap(null)
 
-      for model in @collection.models
-        model.destroy()
-
+      @collection.each((model) -> model.destroy())
       @renderNoResult()
 
 

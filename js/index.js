@@ -173,17 +173,15 @@
         /*
         Clears all locationMarkers and destroys all models
          */
-        var locationMarker, model, _i, _j, _len, _len1, _ref, _ref1;
+        var locationMarker, _i, _len, _ref;
         _ref = this.locationMarkers;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           locationMarker = _ref[_i];
           locationMarker.setMap(null);
         }
-        _ref1 = this.collection.models;
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          model = _ref1[_j];
-          model.destroy();
-        }
+        this.collection.each(function(model) {
+          return model.destroy();
+        });
         return this.renderNoResult();
       };
 

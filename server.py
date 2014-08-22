@@ -63,7 +63,7 @@ class MovieRequestHandler(BaseRequestHandler):
             }
         }
 
-        res = self.es.search(index="test-movie-index", body=query_body)
+        res = self.es.search(index="movie-index", body=query_body)
         logging.info("Got %d Hits for %s", res['hits']['total'], query)
         search_results = [hit["_source"] for hit in res['hits']['hits']]
         self.json_write(search_results, 'movies')
