@@ -4,15 +4,16 @@
 # integrate google maps
 # render mock movies data
 # rename model and view to results
-* add if else for no results
-
+# add if else for no results
+* check if jquery selectors can be replaced with elements
+* clean up and documents
 
 * cleanup js/google.maps.index.js
 * clean up requirements.txt
 ** add eleasticsearch-py
 *
 
-* implement search
+# implement search
 ** dump all record to elastic search
 ** impl the search endpoint
 ** unitest with some representative queries
@@ -22,6 +23,7 @@
 ** load suggestions for movie titles
 
 * make the urls more friendly
+* make url encode for spaces
 * query by all the fields
 
 

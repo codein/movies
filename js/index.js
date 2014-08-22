@@ -119,6 +119,8 @@
       __extends(ResultsView, _super);
 
       function ResultsView() {
+        this.reset = __bind(this.reset, this);
+        this.createResult = __bind(this.createResult, this);
         return ResultsView.__super__.constructor.apply(this, arguments);
       }
 
@@ -129,22 +131,32 @@
         this.collection = new Results;
         this.collection.bind('add', this.appendItem);
         this.counter = 0;
-        return this.render();
+        this.render();
+        return this.locationMarkers = [];
       };
 
       ResultsView.prototype.render = function() {
         return $(this.el).append('<ul id="movies"></ul>');
       };
 
+      ResultsView.prototype.renderNoResult = function() {
+        return $(this.el).html("<span id=\"no-result\">\n   <div class=\"panel panel-default\">\n      <div class=\"panel-heading\">\n        <a href=\"\">No Results</a>\n        <span class=\"badge pull-right\">0</span>\n      </div>\n    </div>\n    <p>Type into the search box</p>\n<span>");
+      };
+
+      ResultsView.prototype.removeNoReuslt = function() {
+        return $('#no-result').remove();
+      };
+
       ResultsView.prototype.createResult = function(resultData) {
-        var location, resultModel, _i, _len, _ref;
+        var location, locationMarker, resultModel, _i, _len, _ref;
         resultModel = new ResultModel(resultData);
-        this.collection.add(resultModel);
         _ref = resultData.locations;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           location = _ref[_i];
-          GoogleMaps.dropMarker(location.latitude.toString(), location.longitude.toString());
+          locationMarker = GoogleMaps.dropMarker(location.latitude.toString(), location.longitude.toString());
+          this.locationMarkers.push(locationMarker);
         }
+        this.collection.add(resultModel);
         return resultModel;
       };
 
@@ -156,6 +168,25 @@
         return $('span#results').append(item_view.render().el);
       };
 
+      ResultsView.prototype.reset = function() {
+
+        /*
+        Clears all locationMarkers and destroys all models
+         */
+        var locationMarker, model, _i, _j, _len, _len1, _ref, _ref1;
+        _ref = this.locationMarkers;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          locationMarker = _ref[_i];
+          locationMarker.setMap(null);
+        }
+        _ref1 = this.collection.models;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          model = _ref1[_j];
+          model.destroy();
+        }
+        return this.renderNoResult();
+      };
+
       return ResultsView;
 
     })(Backbone.View);
@@ -164,31 +195,56 @@
 
       function SearchController() {
         this.search = __bind(this.search, this);
+        this.debounceSearch = __bind(this.debounceSearch, this);
         return SearchController.__super__.constructor.apply(this, arguments);
       }
 
       SearchController.prototype.el = $('body');
 
-      SearchController.prototype.debounceSearch = _.debounce(SearchController.search, 1000);
+      SearchController.prototype.initialize = function() {
+        this.resultsView = new ResultsView;
+        return this.resultsView.renderNoResult();
+      };
+
+      SearchController.prototype.debounceSearch = function() {
+        if (this._debounceSearch == null) {
+          this._debounceSearch = _.debounce(this.search, 1000);
+        }
+        return this._debounceSearch();
+      };
 
       SearchController.prototype.search = function() {
         var searchText;
         searchText = $('#search-text').val();
         console.log('searchText', searchText);
         return $.ajax({
-          url: "/movies/commandments",
+          url: "/movies/" + searchText,
           dataType: "json",
           error: function(jqXHR, textStatus, errorThrown) {
-            return console.log(jqXHR, textStatus, errorThrown);
+            return console.error(jqXHR, textStatus, errorThrown);
           },
-          success: function(data, textStatus, jqXHR) {
-            return console.log(data, textStatus, jqXHR);
-          }
+          success: (function(_this) {
+            return function(data, textStatus, jqXHR) {
+              var resultData, _i, _len, _ref, _results;
+              console.log(data, textStatus, jqXHR);
+              _this.resultsView.reset();
+              if (data.movies.length > 0) {
+                _this.resultsView.removeNoReuslt();
+              }
+              _ref = data.movies.slice(0, 6);
+              _results = [];
+              for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+                resultData = _ref[_i];
+                _results.push(_this.resultsView.createResult(resultData));
+              }
+              return _results;
+            };
+          })(this)
         });
       };
 
       SearchController.prototype.events = {
-        'keyup :input#search-text': 'search'
+        'keyup :input#search-text': 'debounceSearch'
       };
 
       return SearchController;
@@ -198,16 +254,8 @@
       return success();
     };
     _initialize = function() {
-      var result, resultData, resultsView, searchController, _i, _len, _ref, _results;
-      searchController = new SearchController();
-      resultsView = new ResultsView;
-      _ref = movies.slice(0, 6);
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        resultData = _ref[_i];
-        _results.push(result = resultsView.createResult(resultData));
-      }
-      return _results;
+      var searchController;
+      return searchController = new SearchController();
     };
     return google.maps.event.addDomListener(window, 'load', _initialize);
   });

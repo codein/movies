@@ -78,43 +78,8 @@
 
         <h2>SF Movies Geolocated</h2>
 
-        <!-- movie list -->
-        <span id="results">
-          <div ng-repeat="movie in currentMovies">
-
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <a href="">{{movie.title}}</a>
-                <span class="badge pull-right">{{movie.release_year}}</span>
-              </div>
-            </div>
-            <p><i class="fa fa-user"></i> {{movie.writer}} <i class="fa fa-pencil"></i></p>
-            <p><i class="fa fa-smile-o"></i> {{movie.fun_facts.join('. ')}}</p>
-            <p><i class="fa fa-video-camera"></i> {{movie.production_company}}</p>
-
-            <p><i class="fa fa-users"></i> {{movie.actors.join(', ')}}</p>
-
-            <div ng-repeat="location in movie.locations">
-              <p ng-click="dropMarker(location.latitude, location.longitude, 'bounce')">
-                <i class="fa fa-location-arrow"></i>
-                <a href="">{{location.address}}</a>
-              </p>
-            </div>
-            <hr>
-          </div>
-        </span>
-
-        <span ng-if="searchText.length === 0" class="animate-if">
-           <div class="panel panel-default">
-              <div class="panel-heading">
-                <a href="">No Results</a>
-                <span class="badge pull-right">0</span>
-              </div>
-            </div>
-            <p>Type into the search box</p>
-        <span>
-
-        <!-- /movie list -->
+        <!-- search results -->
+        <span id="results"></span>
 
         <p>
         The data is available on <a href="http://www.datasf.org/">DataSF</a>: <a href="https://data.sfgov.org/Arts-Culture-and-Recreation-/Film-Locations-in-San-Francisco/yitu-d5am">Film

@@ -119,49 +119,83 @@ jQuery ->
 
       @counter = 0
       @render()
+      @locationMarkers = []
 
     render: ->
       $(@el).append '<ul id="movies"></ul>'
 
-    createResult: (resultData) ->
-      resultModel = new ResultModel(resultData)
-      @collection.add resultModel
-      for location in resultData.locations
-        GoogleMaps.dropMarker(location.latitude.toString(), location.longitude.toString())
+    renderNoResult: ->
+      $(@el).html """
+      <span id="no-result">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+              <a href="">No Results</a>
+              <span class="badge pull-right">0</span>
+            </div>
+          </div>
+          <p>Type into the search box</p>
+      <span>
+      """
 
+    removeNoReuslt: ->
+      $('#no-result').remove()
+
+    createResult: (resultData) =>
+      resultModel = new ResultModel(resultData)
+      for location in resultData.locations
+        locationMarker = GoogleMaps.dropMarker(location.latitude.toString(), location.longitude.toString())
+        @locationMarkers.push(locationMarker)
+
+      @collection.add resultModel
       resultModel
 
     appendItem: (resultModel) ->
       item_view = new ResultView model: resultModel
       $('span#results').append item_view.render().el
 
+    reset: =>
+      ###
+      Clears all locationMarkers and destroys all models
+      ###
+      for locationMarker in @locationMarkers
+        locationMarker.setMap(null)
+
+      for model in @collection.models
+        model.destroy()
+
+      @renderNoResult()
+
 
   class SearchController extends Backbone.View
     el: $ 'body'
 
-    # constructor: ->
+    initialize: ->
+      @resultsView = new ResultsView
+      @resultsView.renderNoResult()
 
-    # debounceSearch: ->
-    #   console.log 'here'
-
-
-    debounceSearch: _.debounce(@search, 1000)
+    debounceSearch: =>
+      @_debounceSearch ?= _.debounce(@search, 1000)
+      @_debounceSearch()
 
     search: =>
       searchText = $('#search-text').val()
       console.log 'searchText', searchText
       $.ajax
-        url: "/movies/commandments"
+        url: "/movies/#{searchText}"
         dataType: "json"
         error: (jqXHR, textStatus, errorThrown) ->
-          console.log jqXHR, textStatus, errorThrown
-          # $('body').append "AJAX Error: #{textStatus}"
-        success: (data, textStatus, jqXHR) ->
+          console.error jqXHR, textStatus, errorThrown
+
+        success: (data, textStatus, jqXHR) =>
           console.log data, textStatus, jqXHR
-          # $('body').append "Successful AJAX call: #{data}"
+          @resultsView.reset()
+          @resultsView.removeNoReuslt() if data.movies.length > 0
+
+          for resultData in data.movies[0..5]
+            @resultsView.createResult(resultData)
 
     events:
-      'keyup :input#search-text': 'search'
+      'keyup :input#search-text': 'debounceSearch'
 
   # We'll override
   # [`Backbone.sync`](http://documentcloud.github.com/backbone/#Sync)
@@ -171,12 +205,7 @@ jQuery ->
     # this will happen when we remove each Item view.
     success()
 
-
-
   _initialize = ->
     searchController = new SearchController()
-    resultsView = new ResultsView
-    for resultData in movies[0..5]
-      result = resultsView.createResult(resultData)
 
   google.maps.event.addDomListener(window, 'load', _initialize)
