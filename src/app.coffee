@@ -62,6 +62,7 @@ jQuery ->
         <p><i class="fa fa-user"></i> #{@model.get 'writer'} <i class="fa fa-pencil"></i></p>
         <p><i class="fa fa-smile-o"></i> #{@model.get('fun_facts').join('. ')}</p>
         <p><i class="fa fa-video-camera"></i> #{@model.get 'production_company'}</p>
+        <p><i class="fa fa-file-video-o"></i> #{@model.get 'distributor'}</p>
         <p><i class="fa fa-users"></i> #{@model.get('actors').join(', ')}</p>
       """
 
