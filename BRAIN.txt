@@ -23,11 +23,9 @@
 # make the urls more friendly
 # make url encode for spaces
 ## add unittest for "ten Commandments"
-** unitest with some representative queries for multi field
-* move tests to /tests
-* query by all the fields
-* reduce the debounce to 500ms
-* suggestion rendering for addresss actors and fun_facts
+# query by all the fields
+# reduce the debounce to 500ms
+# suggestion rendering for addresss actors and fun_facts
 * clean up load_elasticsearch
 * update no results template to include some query suggestions
 

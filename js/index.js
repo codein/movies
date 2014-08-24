@@ -83,7 +83,7 @@
 
       ResultView.prototype.render = function() {
         var location, _i, _len, _ref;
-        $(this.el).html("\n<div class=\"panel panel-default\">\n  <div class=\"panel-heading\">\n    <a href=\"\">" + (this.model.get('title')) + "</a>\n    <span class=\"badge pull-right\">" + (this.model.get('release_year')) + "</span>\n  </div>\n</div>\n<p><i class=\"fa fa-user\"></i> " + (this.model.get('writer')) + " <i class=\"fa fa-pencil\"></i></p>\n<p><i class=\"fa fa-smile-o\"></i> " + (this.model.get('fun_facts').join('. ')) + "</p>\n<p><i class=\"fa fa-video-camera\"></i> " + (this.model.get('production_company')) + "</p>\n<p><i class=\"fa fa-file-video-o\"></i> " + (this.model.get('distributor')) + "</p>\n<p><i class=\"fa fa-users\"></i> " + (this.model.get('actors').join(', ')) + "</p>");
+        $(this.el).html("\n<div class=\"panel panel-default\">\n  <div class=\"panel-heading\">\n    <a href=\"\">" + (this.model.get('title')) + "</a>\n    <span class=\"badge pull-right\">" + (this.model.get('release_year')) + "</span>\n  </div>\n</div>\n<p><i class=\"fa fa-user\"></i> " + (this.model.get('writer')) + " <i class=\"fa fa-pencil\"></i></p>\n<p><i class=\"fa fa-user\"></i> " + (this.model.get('director')) + " <i class=\"fa fa-scissors\"></i></p>\n<p><i class=\"fa fa-users\"></i> " + (this.model.get('actors').join(', ')) + "</p>\n<p><i class=\"fa fa-smile-o\"></i> " + (this.model.get('fun_facts').join('. ')) + "</p>\n<p><i class=\"fa fa-video-camera\"></i> " + (this.model.get('production_company')) + "</p>\n<p><i class=\"fa fa-file-video-o\"></i> " + (this.model.get('distributor')) + "</p>");
         _ref = this.model.get('locations');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           location = _ref[_i];
@@ -269,12 +269,27 @@
         return this._debounceSearch();
       };
 
-      SearchController.prototype.addSuggestions = function(suggestions) {
-        var suggestion, _i, _len, _results;
+      SearchController.prototype.addSuggestions = function(movies) {
+        var movie, suggestion, suggestions, _i, _j, _len, _len1, _ref, _ref1, _results, _suggestions;
         $('#suggestions').html('');
+        suggestions = [];
+        for (_i = 0, _len = movies.length; _i < _len; _i++) {
+          movie = movies[_i];
+          suggestions = (_ref = this.searchField.value) === 'actors' || _ref === 'addresses' ? suggestions.concat(movie[this.searchField.value]) : this.searchField.value === 'fun_facts' ? (_suggestions = (function() {
+            var _j, _len1, _ref1, _results;
+            _ref1 = movie[this.searchField.value];
+            _results = [];
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              suggestion = _ref1[_j];
+              _results.push(suggestion.slice(0, 51));
+            }
+            return _results;
+          }).call(this), suggestions.concat(_suggestions)) : suggestions.concat([movie[this.searchField.value]]);
+        }
+        _ref1 = _.uniq(suggestions);
         _results = [];
-        for (_i = 0, _len = suggestions.length; _i < _len; _i++) {
-          suggestion = suggestions[_i];
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          suggestion = _ref1[_j];
           _results.push($('#suggestions').append("<option value=\"" + suggestion + "\">"));
         }
         return _results;
@@ -292,21 +307,21 @@
             return console.error(jqXHR, textStatus, errorThrown);
           },
           success: (function(_this) {
-            return function(data, textStatus, jqXHR) {
-              var resultData, suggestions, _i, _len, _ref;
-              console.log(data, textStatus, jqXHR);
+            return function(searchResults, textStatus, jqXHR) {
+              var resultData, _i, _len, _ref, _results;
+              console.log(searchResults, textStatus, jqXHR);
               _this.resultsView.reset();
-              if (data.movies.length > 0) {
+              if (searchResults.movies.length > 0) {
                 _this.resultsView.removeNoReuslt();
               }
-              suggestions = [];
-              _ref = data.movies.slice(0, 6);
+              _this.addSuggestions(searchResults.movies);
+              _ref = searchResults.movies.slice(0, 11);
+              _results = [];
               for (_i = 0, _len = _ref.length; _i < _len; _i++) {
                 resultData = _ref[_i];
-                suggestions.push(resultData.title);
-                _this.resultsView.createResult(resultData);
+                _results.push(_this.resultsView.createResult(resultData));
               }
-              return _this.addSuggestions(suggestions);
+              return _results;
             };
           })(this)
         });

@@ -60,10 +60,11 @@ jQuery ->
           </div>
         </div>
         <p><i class="fa fa-user"></i> #{@model.get 'writer'} <i class="fa fa-pencil"></i></p>
+        <p><i class="fa fa-user"></i> #{@model.get 'director'} <i class="fa fa-scissors"></i></p>
+        <p><i class="fa fa-users"></i> #{@model.get('actors').join(', ')}</p>
         <p><i class="fa fa-smile-o"></i> #{@model.get('fun_facts').join('. ')}</p>
         <p><i class="fa fa-video-camera"></i> #{@model.get 'production_company'}</p>
         <p><i class="fa fa-file-video-o"></i> #{@model.get 'distributor'}</p>
-        <p><i class="fa fa-users"></i> #{@model.get('actors').join(', ')}</p>
       """
 
       for location in @model.get('locations')
@@ -228,10 +229,19 @@ jQuery ->
       @_debounceSearch ?= _.debounce(@search, 500)
       @_debounceSearch()
 
-    addSuggestions: (suggestions)->
+    addSuggestions: (movies)->
       $('#suggestions').html('')
+      suggestions = []
+      for movie in movies
+        suggestions = if @searchField.value in ['actors', 'addresses']
+          suggestions.concat(movie[@searchField.value])
+        else if @searchField.value is 'fun_facts'
+          _suggestions = (suggestion[0..50] for suggestion in movie[@searchField.value])
+          suggestions.concat(_suggestions)
+        else
+          suggestions.concat([movie[@searchField.value]])
 
-      for suggestion in suggestions
+      for suggestion in _.uniq(suggestions)
         $('#suggestions').append "<option value=\"#{suggestion}\">"
 
     search: =>
@@ -244,16 +254,14 @@ jQuery ->
         error: (jqXHR, textStatus, errorThrown) ->
           console.error jqXHR, textStatus, errorThrown
 
-        success: (data, textStatus, jqXHR) =>
-          console.log data, textStatus, jqXHR
+        success: (searchResults, textStatus, jqXHR) =>
+          console.log searchResults, textStatus, jqXHR
           @resultsView.reset()
-          @resultsView.removeNoReuslt() if data.movies.length > 0
-          suggestions = []
-          for resultData in data.movies[0..5]
-            suggestions.push(resultData.title)
+          @resultsView.removeNoReuslt() if searchResults.movies.length > 0
+          @addSuggestions(searchResults.movies)
+          for resultData in searchResults.movies[0..10]
             @resultsView.createResult(resultData)
 
-          @addSuggestions(suggestions)
 
     events:
       'keyup :input#search-text': 'debounceSearch'
