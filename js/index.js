@@ -140,7 +140,7 @@
       };
 
       ResultsView.prototype.renderNoResult = function() {
-        return $(this.el).html("<span id=\"no-result\">\n   <div class=\"panel panel-default\">\n      <div class=\"panel-heading\">\n        <a href=\"\">No Results</a>\n        <span class=\"badge pull-right\">0</span>\n      </div>\n    </div>\n    <p>Type into the search box</p>\n<span>");
+        return $(this.el).html("<span id=\"no-result\">\n   <div class=\"panel panel-default\">\n      <div class=\"panel-heading\">\n        <a href=\"\">No Results</a>\n        <span class=\"badge pull-right\">0</span>\n      </div>\n    </div>\n    <p><i class=\"fa fa-keyboard-o\"></i> Type into the search box</p>\n    <p><i class=\"fa fa-chevron-down fa-3\"></i>   or   <i class=\"fa fa-chevron-up fa-3\"></i></p>\n    <p><i class=\"fa fa-hand-o-up\"></i> Click one from below</p>\n    <ul id=\"search-suggestions\">\n      <li><a field=\"ACTOR\" query=\"Robin Williams\"href=\"#\">Actors: Robin Williams</a></li>\n      <li><a field=\"ADDRESS\" query=\"Alcatraz Island\" href=\"#\">Address: Alcatraz Island</a></li>\n      <li><a field=\"DIRECTOR\" query=\"George Lucas\" href=\"#\">Director: George Lucas</a></li>\n      <li><a field=\"DISTRIBUTOR\" query=\"Warner Bro\" href=\"#\">Distributor: Warner Bro</a></li>\n      <li><a field=\"FUN_FACTS\" query=\"church\" href=\"#\">Fun Facts: church</a></li>\n      <li><a field=\"PRODUCTION_COMPANY\" query=\"Warner Bro\" href=\"#\">Production Company: Warner Bro</a></li>\n      <li><a field=\"RELEASE_YEAR\" query=\"2014\" href=\"#\">Release year: 2014</a></li>\n      <li><a field=\"TITLE\" query=\"Commandments\" href=\"#\">Title: Commandments</a></li>\n      <li><a field=\"WRITE\" query=\"Chaplin\" href=\"#\">Writer: Chaplin</a></li>\n    </ul>\n<span>");
       };
 
       ResultsView.prototype.removeNoReuslt = function() {
@@ -194,6 +194,8 @@
       function SearchController() {
         this.search = __bind(this.search, this);
         this.debounceSearch = __bind(this.debounceSearch, this);
+        this.onClickSearchSuggestions = __bind(this.onClickSearchSuggestions, this);
+        this._setQuery = __bind(this._setQuery, this);
         this.onClickSearchField = __bind(this.onClickSearchField, this);
         this.render = __bind(this.render, this);
         return SearchController.__super__.constructor.apply(this, arguments);
@@ -204,6 +206,8 @@
       SearchController.prototype.searchFieldEl = $('#search-field');
 
       SearchController.prototype.searchFieldOptionsEl = $('#search-field-options');
+
+      SearchController.prototype.searchTextEl = $('#search-text');
 
       SearchController.prototype.SEARCH_FIELDS = {
         DIRECTOR: {
@@ -258,8 +262,25 @@
       SearchController.prototype.onClickSearchField = function(e) {
         var fieldName;
         fieldName = e.target.getAttribute('field');
+        return this._setField(fieldName);
+      };
+
+      SearchController.prototype._setField = function(fieldName) {
         this.searchField = this.SEARCH_FIELDS[fieldName];
         return this.render();
+      };
+
+      SearchController.prototype._setQuery = function(query) {
+        return this.searchTextEl.val(query);
+      };
+
+      SearchController.prototype.onClickSearchSuggestions = function(e) {
+        var fieldName, query;
+        fieldName = e.target.getAttribute('field');
+        query = e.target.getAttribute('query');
+        this._setField(fieldName);
+        this._setQuery(query);
+        return this.search();
       };
 
       SearchController.prototype.debounceSearch = function() {
@@ -297,7 +318,7 @@
 
       SearchController.prototype.search = function() {
         var searchText;
-        searchText = $('#search-text').val();
+        searchText = this.searchTextEl.val();
         console.log('searchText', searchText);
         searchText = encodeURIComponent(searchText);
         return $.ajax({
@@ -329,7 +350,8 @@
 
       SearchController.prototype.events = {
         'keyup :input#search-text': 'debounceSearch',
-        'click #search-field-options': 'onClickSearchField'
+        'click #search-field-options': 'onClickSearchField',
+        'click #search-suggestions': 'onClickSearchSuggestions'
       };
 
       return SearchController;

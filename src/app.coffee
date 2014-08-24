@@ -135,7 +135,20 @@ jQuery ->
               <span class="badge pull-right">0</span>
             </div>
           </div>
-          <p>Type into the search box</p>
+          <p><i class="fa fa-keyboard-o"></i> Type into the search box</p>
+          <p><i class="fa fa-chevron-down fa-3"></i>   or   <i class="fa fa-chevron-up fa-3"></i></p>
+          <p><i class="fa fa-hand-o-up"></i> Click one from below</p>
+          <ul id="search-suggestions">
+            <li><a field="ACTOR" query="Robin Williams"href="#">Actors: Robin Williams</a></li>
+            <li><a field="ADDRESS" query="Alcatraz Island" href="#">Address: Alcatraz Island</a></li>
+            <li><a field="DIRECTOR" query="George Lucas" href="#">Director: George Lucas</a></li>
+            <li><a field="DISTRIBUTOR" query="Warner Bro" href="#">Distributor: Warner Bro</a></li>
+            <li><a field="FUN_FACTS" query="church" href="#">Fun Facts: church</a></li>
+            <li><a field="PRODUCTION_COMPANY" query="Warner Bro" href="#">Production Company: Warner Bro</a></li>
+            <li><a field="RELEASE_YEAR" query="2014" href="#">Release year: 2014</a></li>
+            <li><a field="TITLE" query="Commandments" href="#">Title: Commandments</a></li>
+            <li><a field="WRITE" query="Chaplin" href="#">Writer: Chaplin</a></li>
+          </ul>
       <span>
       """
 
@@ -170,6 +183,7 @@ jQuery ->
     el: $ 'body'
     searchFieldEl: $('#search-field')
     searchFieldOptionsEl: $('#search-field-options')
+    searchTextEl: $('#search-text')
 
     SEARCH_FIELDS:
       DIRECTOR:
@@ -222,8 +236,21 @@ jQuery ->
 
     onClickSearchField: (e) =>
       fieldName = e.target.getAttribute('field')
+      @_setField(fieldName)
+
+    _setField: (fieldName) ->
       @searchField = @SEARCH_FIELDS[fieldName]
       @render()
+
+    _setQuery: (query) =>
+      @searchTextEl.val(query)
+
+    onClickSearchSuggestions: (e) =>
+      fieldName = e.target.getAttribute('field')
+      query = e.target.getAttribute('query')
+      @_setField(fieldName)
+      @_setQuery(query)
+      @search()
 
     debounceSearch: =>
       @_debounceSearch ?= _.debounce(@search, 500)
@@ -245,7 +272,7 @@ jQuery ->
         $('#suggestions').append "<option value=\"#{suggestion}\">"
 
     search: =>
-      searchText = $('#search-text').val()
+      searchText = @searchTextEl.val()
       console.log 'searchText', searchText
       searchText = encodeURIComponent(searchText)
       $.ajax
@@ -266,6 +293,7 @@ jQuery ->
     events:
       'keyup :input#search-text': 'debounceSearch'
       'click #search-field-options': 'onClickSearchField'
+      'click #search-suggestions': 'onClickSearchSuggestions'
 
   # We'll override
   # [`Backbone.sync`](http://documentcloud.github.com/backbone/#Sync)
