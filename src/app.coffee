@@ -59,7 +59,7 @@ jQuery ->
             <span class="badge pull-right">#{@model.get 'release_year'}</span>
           </div>
         </div>
-        <p><i class="fa fa-user"></i> #{@model.get 'writer'}<i class="fa fa-pencil"></i></p>
+        <p><i class="fa fa-user"></i> #{@model.get 'writer'} <i class="fa fa-pencil"></i></p>
         <p><i class="fa fa-smile-o"></i> #{@model.get('fun_facts').join('. ')}</p>
         <p><i class="fa fa-video-camera"></i> #{@model.get 'production_company'}</p>
         <p><i class="fa fa-users"></i> #{@model.get('actors').join(', ')}</p>
@@ -155,7 +155,7 @@ jQuery ->
 
     reset: =>
       ###
-      Clears all locationMarkers and destroys all models
+      Clears all locationMarkers and destroys all models1
       ###
       for locationMarker in @locationMarkers
         locationMarker.setMap(null)
@@ -166,17 +166,69 @@ jQuery ->
 
   class SearchController extends Backbone.View
     el: $ 'body'
+    searchFieldEl: $('#search-field')
+    searchFieldOptionsEl: $('#search-field-options')
+
+    SEARCH_FIELDS:
+      DIRECTOR:
+        label: 'Director'
+        value: 'director'
+
+      RELEASE_YEAR:
+        label: 'Release year'
+        value: 'release_year'
+
+      TITLE:
+        label: 'Title'
+        value: 'title'
+
+      ADDRESS:
+        label: 'Address'
+        value: 'addresses'
+
+      ACTOR:
+        label: 'Actors'
+        value: 'actors'
+
+      WRITE:
+        label: 'Writer'
+        value: 'writer'
+
+      PRODUCTION_COMPANY:
+        label: 'Production Company'
+        value: 'production_company'
+
+      DISTRIBUTOR:
+        label: 'Distributor'
+        value: 'distributor'
+
+      FUN_FACTS:
+        label: 'Fun Facts'
+        value: 'fun_facts'
+
 
     initialize: ->
       @resultsView = new ResultsView
       @resultsView.renderNoResult()
+      @searchField = @SEARCH_FIELDS.TITLE
+      @render()
+
+    render: =>
+      @searchFieldEl.html """
+       #{@searchField.label} <span class="glyphicon glyphicon-chevron-down"></span>
+      """
+
+    onClickSearchField: (e) =>
+      fieldName = e.target.getAttribute('field')
+      @searchField = @SEARCH_FIELDS[fieldName]
+      @render()
 
     debounceSearch: =>
-      @_debounceSearch ?= _.debounce(@search, 1000)
+      @_debounceSearch ?= _.debounce(@search, 500)
       @_debounceSearch()
 
     addSuggestions: (suggestions)->
-      $('#suggestions').html()
+      $('#suggestions').html('')
 
       for suggestion in suggestions
         $('#suggestions').append "<option value=\"#{suggestion}\">"
@@ -186,7 +238,7 @@ jQuery ->
       console.log 'searchText', searchText
       searchText = encodeURIComponent(searchText)
       $.ajax
-        url: "/movies?query=#{searchText}"
+        url: "/movies?query=#{searchText}&field=#{@searchField.value}"
         dataType: "json"
         error: (jqXHR, textStatus, errorThrown) ->
           console.error jqXHR, textStatus, errorThrown
@@ -204,6 +256,7 @@ jQuery ->
 
     events:
       'keyup :input#search-text': 'debounceSearch'
+      'click #search-field-options': 'onClickSearchField'
 
   # We'll override
   # [`Backbone.sync`](http://documentcloud.github.com/backbone/#Sync)

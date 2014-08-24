@@ -39,7 +39,6 @@
       </div>
       <div class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
-          <li><a href="#">Show All</a></li>
           <li>&nbsp;</li>
         </ul>
 
@@ -47,15 +46,18 @@
           <div class="form-group" style="display:inline;">
             <div class="input-group">
               <div class="input-group-btn">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                  <span class="glyphicon glyphicon-chevron-down"></span>
+                <button id="search-field"type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                 </button>
-                <ul class="dropdown-menu">
-                  <li><a href="#">Robin</a></li>
-                  <li><a href="#">Commandments</a></li>
-                  <li><a href="#">Alfred</a></li>
-                  <li><a href="#">Chaplin</a></li>
-                  <li><a href="#">golden gate bridge</a></li>
+                <ul id="search-field-options" class="dropdown-menu">
+                  <li><a field="ACTOR" href="#">Actors</a></li>
+                  <li><a field="ADDRESS" href="#">Address</a></li>
+                  <li><a field="DIRECTOR" href="#">Director</a></li>
+                  <li><a field="DISTRIBUTOR" href="#">Distributor</a></li>
+                  <li><a field="FUN_FACTS" href="#">Fun Facts</a></li>
+                  <li><a field="PRODUCTION_COMPANY" href="#">Production Company</a></li>
+                  <li><a field="RELEASE_YEAR" href="#">Release year</a></li>
+                  <li><a field="TITLE" href="#">Title</a></li>
+                  <li><a field="WRITE" href="#">Writer</a></li>
                 </ul>
               </div>
 

@@ -83,7 +83,7 @@
 
       ResultView.prototype.render = function() {
         var location, _i, _len, _ref;
-        $(this.el).html("\n<div class=\"panel panel-default\">\n  <div class=\"panel-heading\">\n    <a href=\"\">" + (this.model.get('title')) + "</a>\n    <span class=\"badge pull-right\">" + (this.model.get('release_year')) + "</span>\n  </div>\n</div>\n<p><i class=\"fa fa-user\"></i> " + (this.model.get('writer')) + "<i class=\"fa fa-pencil\"></i></p>\n<p><i class=\"fa fa-smile-o\"></i> " + (this.model.get('fun_facts').join('. ')) + "</p>\n<p><i class=\"fa fa-video-camera\"></i> " + (this.model.get('production_company')) + "</p>\n<p><i class=\"fa fa-users\"></i> " + (this.model.get('actors').join(', ')) + "</p>");
+        $(this.el).html("\n<div class=\"panel panel-default\">\n  <div class=\"panel-heading\">\n    <a href=\"\">" + (this.model.get('title')) + "</a>\n    <span class=\"badge pull-right\">" + (this.model.get('release_year')) + "</span>\n  </div>\n</div>\n<p><i class=\"fa fa-user\"></i> " + (this.model.get('writer')) + " <i class=\"fa fa-pencil\"></i></p>\n<p><i class=\"fa fa-smile-o\"></i> " + (this.model.get('fun_facts').join('. ')) + "</p>\n<p><i class=\"fa fa-video-camera\"></i> " + (this.model.get('production_company')) + "</p>\n<p><i class=\"fa fa-users\"></i> " + (this.model.get('actors').join(', ')) + "</p>");
         _ref = this.model.get('locations');
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           location = _ref[_i];
@@ -171,7 +171,7 @@
       ResultsView.prototype.reset = function() {
 
         /*
-        Clears all locationMarkers and destroys all models
+        Clears all locationMarkers and destroys all models1
          */
         var locationMarker, _i, _len, _ref;
         _ref = this.locationMarkers;
@@ -194,26 +194,84 @@
       function SearchController() {
         this.search = __bind(this.search, this);
         this.debounceSearch = __bind(this.debounceSearch, this);
+        this.onClickSearchField = __bind(this.onClickSearchField, this);
+        this.render = __bind(this.render, this);
         return SearchController.__super__.constructor.apply(this, arguments);
       }
 
       SearchController.prototype.el = $('body');
 
+      SearchController.prototype.searchFieldEl = $('#search-field');
+
+      SearchController.prototype.searchFieldOptionsEl = $('#search-field-options');
+
+      SearchController.prototype.SEARCH_FIELDS = {
+        DIRECTOR: {
+          label: 'Director',
+          value: 'director'
+        },
+        RELEASE_YEAR: {
+          label: 'Release year',
+          value: 'release_year'
+        },
+        TITLE: {
+          label: 'Title',
+          value: 'title'
+        },
+        ADDRESS: {
+          label: 'Address',
+          value: 'addresses'
+        },
+        ACTOR: {
+          label: 'Actors',
+          value: 'actors'
+        },
+        WRITE: {
+          label: 'Writer',
+          value: 'writer'
+        },
+        PRODUCTION_COMPANY: {
+          label: 'Production Company',
+          value: 'production_company'
+        },
+        DISTRIBUTOR: {
+          label: 'Distributor',
+          value: 'distributor'
+        },
+        FUN_FACTS: {
+          label: 'Fun Facts',
+          value: 'fun_facts'
+        }
+      };
+
       SearchController.prototype.initialize = function() {
         this.resultsView = new ResultsView;
-        return this.resultsView.renderNoResult();
+        this.resultsView.renderNoResult();
+        this.searchField = this.SEARCH_FIELDS.TITLE;
+        return this.render();
+      };
+
+      SearchController.prototype.render = function() {
+        return this.searchFieldEl.html("" + this.searchField.label + " <span class=\"glyphicon glyphicon-chevron-down\"></span>");
+      };
+
+      SearchController.prototype.onClickSearchField = function(e) {
+        var fieldName;
+        fieldName = e.target.getAttribute('field');
+        this.searchField = this.SEARCH_FIELDS[fieldName];
+        return this.render();
       };
 
       SearchController.prototype.debounceSearch = function() {
         if (this._debounceSearch == null) {
-          this._debounceSearch = _.debounce(this.search, 1000);
+          this._debounceSearch = _.debounce(this.search, 500);
         }
         return this._debounceSearch();
       };
 
       SearchController.prototype.addSuggestions = function(suggestions) {
         var suggestion, _i, _len, _results;
-        $('#suggestions').html();
+        $('#suggestions').html('');
         _results = [];
         for (_i = 0, _len = suggestions.length; _i < _len; _i++) {
           suggestion = suggestions[_i];
@@ -228,7 +286,7 @@
         console.log('searchText', searchText);
         searchText = encodeURIComponent(searchText);
         return $.ajax({
-          url: "/movies?query=" + searchText,
+          url: "/movies?query=" + searchText + "&field=" + this.searchField.value,
           dataType: "json",
           error: function(jqXHR, textStatus, errorThrown) {
             return console.error(jqXHR, textStatus, errorThrown);
@@ -255,7 +313,8 @@
       };
 
       SearchController.prototype.events = {
-        'keyup :input#search-text': 'debounceSearch'
+        'keyup :input#search-text': 'debounceSearch',
+        'click #search-field-options': 'onClickSearchField'
       };
 
       return SearchController;
