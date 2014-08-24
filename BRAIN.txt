@@ -11,22 +11,25 @@
 * cleanup js/google.maps.index.js
 * clean up requirements.txt
 ** add eleasticsearch-py
-*
 
 # implement search
 ## dump all record to elastic search
 ## impl the search endpoint
 ## use couroutines
 
-* implement suggestions
-** load suggestions for movie titles
+# implement suggestions
+## load suggestions for movie titles
 
-* make the urls more friendly
-* make url encode for spaces
-** add unittest for "ten Commandments"
-** unitest with some representative queries
+# make the urls more friendly
+# make url encode for spaces
+## add unittest for "ten Commandments"
+** unitest with some representative queries for multi field
+* move tests to /tests
 * query by all the fields
 * reduce the debounce to 500ms
+* suggestion rendering for addresss actors and fun_facts
+* clean up load_elasticsearch
+* update no results template to include some query suggestions
 
 
 https://gist.github.com/wingdspur/2026107

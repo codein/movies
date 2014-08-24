@@ -44,11 +44,11 @@ class BaseRequestHandler(tornado.web.RequestHandler):
         self.finish()
 
 @tornado.gen.coroutine
-def search(es, query):
+def search(es, query, fields=['title']):
     query_body = {
         "query": {
             "fuzzy_like_this": {
-                "fields" : ["title"],
+                "fields" : fields,
                 'like_text': query
             }
         }
@@ -73,7 +73,12 @@ class MovieRequestHandler(BaseRequestHandler):
         return movies for a given query.
         yet to be implemented
         """
-        search_results = yield search(self.es, query)
+        query = self.get_argument('query', default='')
+        fields = self.get_arguments('field')
+        if len(fields) == 0:
+            fields = ['title']
+
+        search_results = yield search(self.es, query, fields)
         self.json_write(search_results, 'movies')
 
 class SuggestionRequestHandler(BaseRequestHandler):

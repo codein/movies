@@ -184,9 +184,9 @@ jQuery ->
     search: =>
       searchText = $('#search-text').val()
       console.log 'searchText', searchText
-
+      searchText = encodeURIComponent(searchText)
       $.ajax
-        url: "/movies/#{searchText}"
+        url: "/movies?query=#{searchText}"
         dataType: "json"
         error: (jqXHR, textStatus, errorThrown) ->
           console.error jqXHR, textStatus, errorThrown

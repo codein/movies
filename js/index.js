@@ -226,8 +226,9 @@
         var searchText;
         searchText = $('#search-text').val();
         console.log('searchText', searchText);
+        searchText = encodeURIComponent(searchText);
         return $.ajax({
-          url: "/movies/" + searchText,
+          url: "/movies?query=" + searchText,
           dataType: "json",
           error: function(jqXHR, textStatus, errorThrown) {
             return console.error(jqXHR, textStatus, errorThrown);
