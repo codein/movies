@@ -8,9 +8,6 @@
 * check if jquery selectors can be replaced with elements
 * clean up and documents
 
-* cleanup js/google.maps.index.js
-* clean up requirements.txt
-** add eleasticsearch-py
 
 # implement search
 ## dump all record to elastic search
@@ -26,8 +23,24 @@
 # query by all the fields
 # reduce the debounce to 500ms
 # suggestion rendering for addresss actors and fun_facts
+# update no results template to include some query suggestions
+
+# clean up app.coffee
+# cleanup js/google.maps.index.js
+* docs
 * clean up load_elasticsearch
-* update no results template to include some query suggestions
+* clean up requirements.txt
+* lint py
+
+* requirements.txt
+** add eleasticsearch-py
+* write setup.sh
+
+* update readme
+** run test
+** run server
+** dev grunt
+
 
 
 https://gist.github.com/wingdspur/2026107
