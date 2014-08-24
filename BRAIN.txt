@@ -37,15 +37,21 @@
 * write setup.sh
 
 * update readme
+** overview
+*** mention each app.coffee server.py etc
 ** run test
 ** run server
 ** dev grunt
+** data engineering
 ** explain limitation of data list
 ** multi field
+
 ** Improvements
 *** auto complete
 *** paging
 *** multi field query
+*** automation
+
 ** create demo video
 
 
