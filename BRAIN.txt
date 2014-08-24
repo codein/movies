@@ -40,7 +40,13 @@
 ** run test
 ** run server
 ** dev grunt
-
+** explain limitation of data list
+** multi field
+** Improvements
+*** auto complete
+*** paging
+*** multi field query
+** create demo video
 
 
 https://gist.github.com/wingdspur/2026107
