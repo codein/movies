@@ -75,6 +75,7 @@ on saving a .coffee file grunt compiles coffescript into javascript.
 * Auto completion is implemented currently using HTML5 <datalist>, these are not optimally implemeted across all browsers. Firefox has the best implementation chrome is a bit bad. We might wanna use typeahead.js or jQueryUI autocompletion plugin to have a consisting behaviour.
 * use grunt to minify the compiled js.
 * use redis to cache results
+* use nginx to load balance
 
 
 
