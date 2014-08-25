@@ -1,5 +1,6 @@
 
 /*
+SF Food Truck UI, includes models and views
  */
 
 (function() {
@@ -12,11 +13,21 @@
     GoogleMaps = (function() {
       function GoogleMaps() {}
 
+
+      /*
+      A container to hold all google map interactions.
+       */
+
       GoogleMaps.dropMarker = function(latitude, longitude, animation) {
         var marker, position;
         if (animation == null) {
           animation = 'DROP';
         }
+
+        /*
+        Given latitude, longitude, animation='DROP', letter='Z'
+        drops a marker with the appropriate animation on maps
+         */
         switch (animation) {
           case 'BOUNCE':
             animation = google.maps.Animation.BOUNCE;
@@ -46,6 +57,12 @@
         return ResultModel.__super__.constructor.apply(this, arguments);
       }
 
+
+      /*
+      Search Result model
+      a instance of this model is created for each record returned from the server.
+       */
+
       ResultModel.prototype.defaults = {
         part1: 'Hello',
         part2: 'Backbone'
@@ -61,6 +78,11 @@
         return Results.__super__.constructor.apply(this, arguments);
       }
 
+
+      /*
+      A Collection container to hold previously defined ResultModel
+       */
+
       Results.prototype.model = ResultModel;
 
       return Results;
@@ -74,6 +96,11 @@
         this.render = __bind(this.render, this);
         return ResultView.__super__.constructor.apply(this, arguments);
       }
+
+
+      /*
+      A view corresponding to each ResultModel instance
+       */
 
       ResultView.prototype.initialize = function() {
         _.bindAll(this);
@@ -98,6 +125,11 @@
       };
 
       ResultView.prototype.onClickLocation = function(e) {
+
+        /*
+        function fired in response to the onClick event for a location
+        this animates the corresponding marker for this address.
+         */
         var latitude, longitude;
         latitude = e.target.getAttribute('latitude');
         longitude = e.target.getAttribute('longitude');
@@ -124,6 +156,11 @@
         return ResultsView.__super__.constructor.apply(this, arguments);
       }
 
+
+      /*
+      The contained holding all individual result views.
+       */
+
       ResultsView.prototype.el = $('span#results');
 
       ResultsView.prototype.initialize = function() {
@@ -140,6 +177,11 @@
       };
 
       ResultsView.prototype.renderNoResult = function() {
+
+        /*
+        Renders the no result section when no models have yet been retrieved.
+        This section all so includes few location suggestions
+         */
         return $(this.el).html("<span id=\"no-result\">\n   <div class=\"panel panel-default\">\n      <div class=\"panel-heading\">\n        <a href=\"\">No Results</a>\n        <span class=\"badge pull-right\">0</span>\n      </div>\n    </div>\n    <p><i class=\"fa fa-keyboard-o\"></i> Type into the search box</p>\n    <p><i class=\"fa fa-chevron-down fa-3\"></i>   or   <i class=\"fa fa-chevron-up fa-3\"></i></p>\n    <p><i class=\"fa fa-hand-o-up\"></i> Click one from below</p>\n    <ul id=\"search-suggestions\">\n      <li><a field=\"ACTOR\" query=\"Robin Williams\"href=\"#\">Actors: Robin Williams</a></li>\n      <li><a field=\"ADDRESS\" query=\"Alcatraz Island\" href=\"#\">Address: Alcatraz Island</a></li>\n      <li><a field=\"DIRECTOR\" query=\"George Lucas\" href=\"#\">Director: George Lucas</a></li>\n      <li><a field=\"DISTRIBUTOR\" query=\"Warner Bro\" href=\"#\">Distributor: Warner Bro</a></li>\n      <li><a field=\"FUN_FACTS\" query=\"church\" href=\"#\">Fun Facts: church</a></li>\n      <li><a field=\"PRODUCTION_COMPANY\" query=\"Warner Bro\" href=\"#\">Production Company: Warner Bro</a></li>\n      <li><a field=\"RELEASE_YEAR\" query=\"2014\" href=\"#\">Release year: 2014</a></li>\n      <li><a field=\"TITLE\" query=\"Commandments\" href=\"#\">Title: Commandments</a></li>\n      <li><a field=\"WRITE\" query=\"Chaplin\" href=\"#\">Writer: Chaplin</a></li>\n    </ul>\n<span>");
       };
 
@@ -148,6 +190,10 @@
       };
 
       ResultsView.prototype.createResult = function(resultData) {
+
+        /*
+        Given a resultData obj, creates a resultModel.
+         */
         var location, locationMarker, resultModel, _i, _len, _ref;
         resultModel = new ResultModel(resultData);
         _ref = resultData.locations;
@@ -161,6 +207,11 @@
       };
 
       ResultsView.prototype.appendItem = function(resultModel) {
+
+        /*
+        This function is fired in-respond to a new model addtion to this collection.
+        It renders the result view for this model and appends the view to the results listing.
+         */
         var item_view;
         item_view = new ResultView({
           model: resultModel
@@ -200,6 +251,14 @@
         this.render = __bind(this.render, this);
         return SearchController.__super__.constructor.apply(this, arguments);
       }
+
+
+      /*
+      Master App controller responsible for
+      1. intializing all underlying view/controllers.
+      2. Fetch searchResults from server for user requests.
+      3. Finally add searchResults to the resultsView.
+       */
 
       SearchController.prototype.el = $('body');
 
@@ -260,6 +319,11 @@
       };
 
       SearchController.prototype.onClickSearchField = function(e) {
+
+        /*
+        triggered when a field is selected from the field dropdown
+        this sets the selected field to be the current field by which serach queries are filtered.
+         */
         var fieldName;
         fieldName = e.target.getAttribute('field');
         return this._setField(fieldName);
@@ -275,6 +339,10 @@
       };
 
       SearchController.prototype.onClickSearchSuggestions = function(e) {
+
+        /*
+        function trigger when user clicks on any of the suggested locations.
+         */
         var fieldName, query;
         fieldName = e.target.getAttribute('field');
         query = e.target.getAttribute('query');
@@ -284,6 +352,11 @@
       };
 
       SearchController.prototype.debounceSearch = function() {
+
+        /*
+        Trigger for every change in search-text
+        however the underlying search function is wrapper in a debounce so that it is called once in 500ms
+         */
         if (this._debounceSearch == null) {
           this._debounceSearch = _.debounce(this.search, 500);
         }
@@ -291,6 +364,10 @@
       };
 
       SearchController.prototype.addSuggestions = function(movies) {
+
+        /*
+        Takes the current search results to create a suggestions list to promt the test the user is trying to serach.
+         */
         var movie, suggestion, suggestions, _i, _j, _len, _len1, _ref, _ref1, _results, _suggestions;
         $('#suggestions').html('');
         suggestions = [];
@@ -317,9 +394,14 @@
       };
 
       SearchController.prototype.search = function() {
+
+        /*
+        Trigger for every user request
+        Firstly, fetches searchResults from server for user requests.
+        on success adds searchResults to the resultsView.
+         */
         var searchText;
         searchText = this.searchTextEl.val();
-        console.log('searchText', searchText);
         searchText = encodeURIComponent(searchText);
         return $.ajax({
           url: "/movies?query=" + searchText + "&field=" + this.searchField.value,
@@ -330,7 +412,6 @@
           success: (function(_this) {
             return function(searchResults, textStatus, jqXHR) {
               var resultData, _i, _len, _ref, _results;
-              console.log(searchResults, textStatus, jqXHR);
               _this.resultsView.reset();
               if (searchResults.movies.length > 0) {
                 _this.resultsView.removeNoReuslt();

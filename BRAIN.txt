@@ -35,6 +35,7 @@
 * requirements.txt
 ** add eleasticsearch-py
 * write setup.sh
+* remove data.js
 
 * update readme
 ** overview

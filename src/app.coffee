@@ -1,10 +1,17 @@
 ###
+SF Food Truck UI, includes models and views
 ###
 jQuery ->
 
   class GoogleMaps
-
+    ###
+    A container to hold all google map interactions.
+    ###
     @dropMarker: (latitude, longitude, animation='DROP') ->
+      ###
+      Given latitude, longitude, animation='DROP', letter='Z'
+      drops a marker with the appropriate animation on maps
+      ###
       switch animation
         when 'BOUNCE'
           animation = google.maps.Animation.BOUNCE
@@ -24,32 +31,31 @@ jQuery ->
 
 
   class ResultModel extends Backbone.Model
-
+    ###
+    Search Result model
+    a instance of this model is created for each record returned from the server.
+    ###
     defaults:
       part1: 'Hello'
       part2: 'Backbone'
 
   class Results extends Backbone.Collection
-
+    ###
+    A Collection container to hold previously defined ResultModel
+    ###
     model: ResultModel
 
 
   class ResultView extends Backbone.View
-
-    # tagName: 'div'
-
-    # `initialize()`
-    # binds [`change`](http://documentcloud.github.com/backbone/#Model-change)
-    # and [`remove`](http://documentcloud.github.com/backbone/#Collection-remove)
-    # to `@render` and `@unrender`, respectively.
+    ###
+    A view corresponding to each ResultModel instance
+    ###
     initialize: ->
       _.bindAll @
 
       @model.bind 'change', @render
       @model.bind 'remove', @unrender
 
-    # `render()` now includes two extra `span`s for swapping and deleting
-    # an item.
     render: =>
       $(@el).html """
 
@@ -90,16 +96,14 @@ jQuery ->
       $(@el).remove()
 
     onClickLocation: (e) ->
+      ###
+      function fired in response to the onClick event for a location
+      this animates the corresponding marker for this address.
+      ###
       latitude = e.target.getAttribute('latitude')
       longitude = e.target.getAttribute('longitude')
       GoogleMaps.dropMarker(latitude, longitude, 'BOUNCE')
 
-
-    # `remove()` calls the model's
-    # [`destroy()`](http://documentcloud.github.com/backbone/#Model-destroy)
-    # method, removing the model from its collection. `destroy()` would
-    # normally delete the record from its persistent storage, but we'll
-    # override this in `Backbone.sync` below.
     remove: -> @model.destroy()
 
     # `ResultView`s now respond to two click actions for each `Item`.
@@ -107,10 +111,10 @@ jQuery ->
       'click .location': 'onClickLocation'
 
 
-  # We no longer need to modify the `ResultsView` because `swap` and `delete` are
-  # called on each `Item`.
   class ResultsView extends Backbone.View
-
+    ###
+    The contained holding all individual result views.
+    ###
     el: $ 'span#results'
 
     initialize: ->
@@ -127,6 +131,10 @@ jQuery ->
       $(@el).append '<ul id="movies"></ul>'
 
     renderNoResult: ->
+      ###
+      Renders the no result section when no models have yet been retrieved.
+      This section all so includes few location suggestions
+      ###
       $(@el).html """
       <span id="no-result">
          <div class="panel panel-default">
@@ -156,6 +164,9 @@ jQuery ->
       $('#no-result').remove()
 
     createResult: (resultData) =>
+      ###
+      Given a resultData obj, creates a resultModel.
+      ###
       resultModel = new ResultModel(resultData)
       for location in resultData.locations
         locationMarker = GoogleMaps.dropMarker(location.latitude.toString(), location.longitude.toString())
@@ -165,6 +176,10 @@ jQuery ->
       resultModel
 
     appendItem: (resultModel) ->
+      ###
+      This function is fired in-respond to a new model addtion to this collection.
+      It renders the result view for this model and appends the view to the results listing.
+      ###
       item_view = new ResultView model: resultModel
       $('span#results').append item_view.render().el
 
@@ -180,6 +195,13 @@ jQuery ->
 
 
   class SearchController extends Backbone.View
+    ###
+    Master App controller responsible for
+    1. intializing all underlying view/controllers.
+    2. Fetch searchResults from server for user requests.
+    3. Finally add searchResults to the resultsView.
+    ###
+
     el: $ 'body'
     searchFieldEl: $('#search-field')
     searchFieldOptionsEl: $('#search-field-options')
@@ -222,7 +244,6 @@ jQuery ->
         label: 'Fun Facts'
         value: 'fun_facts'
 
-
     initialize: ->
       @resultsView = new ResultsView
       @resultsView.renderNoResult()
@@ -235,6 +256,10 @@ jQuery ->
       """
 
     onClickSearchField: (e) =>
+      ###
+      triggered when a field is selected from the field dropdown
+      this sets the selected field to be the current field by which serach queries are filtered.
+      ###
       fieldName = e.target.getAttribute('field')
       @_setField(fieldName)
 
@@ -246,6 +271,9 @@ jQuery ->
       @searchTextEl.val(query)
 
     onClickSearchSuggestions: (e) =>
+      ###
+      function trigger when user clicks on any of the suggested locations.
+      ###
       fieldName = e.target.getAttribute('field')
       query = e.target.getAttribute('query')
       @_setField(fieldName)
@@ -253,10 +281,17 @@ jQuery ->
       @search()
 
     debounceSearch: =>
+      ###
+      Trigger for every change in search-text
+      however the underlying search function is wrapper in a debounce so that it is called once in 500ms
+      ###
       @_debounceSearch ?= _.debounce(@search, 500)
       @_debounceSearch()
 
     addSuggestions: (movies)->
+      ###
+      Takes the current search results to create a suggestions list to promt the test the user is trying to serach.
+      ###
       $('#suggestions').html('')
       suggestions = []
       for movie in movies
@@ -272,9 +307,15 @@ jQuery ->
         $('#suggestions').append "<option value=\"#{suggestion}\">"
 
     search: =>
+      ###
+      Trigger for every user request
+      Firstly, fetches searchResults from server for user requests.
+      on success adds searchResults to the resultsView.
+      ###
       searchText = @searchTextEl.val()
-      console.log 'searchText', searchText
       searchText = encodeURIComponent(searchText)
+
+      # fire the ajax request to fetch searchResults from API endpoint
       $.ajax
         url: "/movies?query=#{searchText}&field=#{@searchField.value}"
         dataType: "json"
@@ -282,13 +323,12 @@ jQuery ->
           console.error jqXHR, textStatus, errorThrown
 
         success: (searchResults, textStatus, jqXHR) =>
-          console.log searchResults, textStatus, jqXHR
+          #on success adds searchResults to the resultsView.
           @resultsView.reset()
           @resultsView.removeNoReuslt() if searchResults.movies.length > 0
           @addSuggestions(searchResults.movies)
           for resultData in searchResults.movies[0..10]
             @resultsView.createResult(resultData)
-
 
     events:
       'keyup :input#search-text': 'debounceSearch'
@@ -304,6 +344,7 @@ jQuery ->
     success()
 
   _initialize = ->
+    # initializa the app once google maps has loaded.
     searchController = new SearchController()
 
   google.maps.event.addDomListener(window, 'load', _initialize)
