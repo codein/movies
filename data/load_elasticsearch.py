@@ -7,22 +7,26 @@ from movies_test import movies as movies_test
 es = Elasticsearch()
 
 def load_test_movies():
+    """
+    loads test movies into elastic search
+    """
     for movie in movies_test:
-        print movie
-        print movie['title']
-
         res = es.index(index="test-movie-index", doc_type='movie', id=movie['title'], body=movie)
 
 def load_movies():
+    """
+    loads movies into elastic search
+    """
     for movie in movies:
-        # print movie
-        # print movie['title']
         addresses = [location['address'] for location in movie['locations']]
         movie['addresses'] = addresses
         res = es.index(index="movie-index", doc_type='movie', id=movie['title'], body=movie)
 
 
 def search_poc(query):
+    """
+    search poc to test elasticsearch's query
+    """
     query_body = {
         "query": {
             "fuzzy_like_this": {
