@@ -16,11 +16,9 @@ curl http://localhost:9200
 
 sudo pip install -r requirements.txt
 
-# setup db
-python data/sql_orm.py
-# load data
+# load data into elastic serach
 cd data
-python data_engineering.py
+python load_elasticsearch.py
 
 # run server
 ./run_server

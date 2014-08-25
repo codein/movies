@@ -8,7 +8,6 @@ import logging
 from operator import itemgetter
 
 from elasticsearch import Elasticsearch
-import Levenshtein
 import tornado.ioloop
 import tornado.web
 import tornado.gen
