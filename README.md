@@ -70,6 +70,7 @@ grunt watch
 on saving a .coffee file grunt compiles coffescript into javascript.
 
 ### Improvements
+* Implement paging for serach results.
 * Ansible scripts for automation around setup
 * User should be able filter by multiple fields
 * Auto completion is implemented currently using HTML5 <datalist>, these are not optimally implemeted across all browsers. Firefox has the best implementation chrome is a bit bad. We might wanna use typeahead.js or jQueryUI autocompletion plugin to have a consisting behaviour.
