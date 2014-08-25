@@ -1,11 +1,11 @@
 ## SF Movies
-Offline version hosted at http://codein.github.io/movies/
 
-Checkout a demo video at https://github.com/codein/movies/blob/master/output.mkv
+A version hosted at http://146.148.41.202:8888/static/index.html
+
 
 ### Overview
 
-This impementation is a Full-stack implementation: include both front-end and back-end.
+This impementation is a Full-stack implementation: includes both front-end and back-end.
 
 
 #### Data-Enginnering
